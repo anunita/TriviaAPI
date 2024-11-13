@@ -50,17 +50,21 @@ def create_app(test_config=None):
     Create an endpoint to handle GET requests
     for all available categories.
     """
-    @app.route("/categories")
+    @app.route("/categories", methods=["GET"])
     def retrieve_categories():
-        category = Category.query.order_by(Category.id).all()
-        
+        category = Category.query.order_by(Category.type).all()
+
         if len(category) == 0:
             abort(404)
 
-        format_category = [everycategory.format() for everycategory in category]
+        categories = {}
+        for cat in category:
+            categories[cat.id] = cat.type
+
         result = {
-                "success": True,
-                "categories": format_category
+                "successs": True,
+                "categories": categories
+
         }
 
         return result
@@ -71,13 +75,34 @@ def create_app(test_config=None):
     including pagination (every 10 questions).
     This endpoint should return a list of questions,
     number of total questions, current category, categories.
-
+    
     TEST: At this point, when you start the application
     you should see questions and categories generated,
     ten questions per page and pagination at the bottom of the screen for three pages.
     Clicking on the page numbers should update the questions.
     """
+    @app.route("/questions", methods=["GET"])
+    def retrieve_questions():
+        selection = Question.query.order_by(Question.id).all()
+        current_questions = paginate_questions(request, selection)
 
+        if len(current_questions) == 0:
+            abort(404)
+
+        category = Category.query.order_by(Category.type).all()
+        categories = {}
+        for cat in category:
+            categories[cat.id] = cat.type
+
+        result = {
+                "success": True,
+                "questions": current_questions,
+                "total_questions": len(selection),
+                "categories": categories,
+                "current_category": None
+        }
+        return result  
+       
     """
     @TODO:
     Create an endpoint to DELETE question using a question ID.
@@ -85,7 +110,27 @@ def create_app(test_config=None):
     TEST: When you click the trash icon next to a question, the question will be removed.
     This removal will persist in the database and when you refresh the page.
     """
+    @app.route("/questions/<int:question_id>", methods=["DELETE"])
+    def delete_question(question_id):
+        try:
+            question = Question.query.filter(Question.id == question_id).one_or_none()
 
+            if question is None:
+                abort(404)
+
+            question.delete()
+            selection = Question.query.order_by(Question.id).all()
+            current_questions = paginate_questions(request, selection)
+
+            return jsonify(
+                {
+                    "success": True,
+                    #"deleted": question_id,
+                }
+            )
+
+        except:
+            abort(422)
     """
     @TODO:
     Create an endpoint to POST a new question,
@@ -134,6 +179,32 @@ def create_app(test_config=None):
     Create error handlers for all expected errors
     including 404 and 422.
     """
+    @app.errorhandler(404)
+    def not_found(error):
+        return (
+            jsonify({"success": False, "error": 404, "message": "resource not found"}),
+            404,
+        )
 
+    @app.errorhandler(422)
+    def unprocessable(error):
+        return (
+            jsonify({"success": False, "error": 422, "message": "unprocessable"}),
+            422,
+        )
+
+    @app.errorhandler(400)
+    def bad_request(error):
+        return (
+            jsonify({"success": False, "error": 400, "message": "bad request"}), 
+            400,
+        )
+
+    @app.errorhandler(405)
+    def not_found(error):
+        return (
+            jsonify({"success": False, "error": 405, "message": "method not allowed"}),
+            405,
+        )
     return app
 
