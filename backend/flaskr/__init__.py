@@ -16,15 +16,16 @@ def paginate_questions(request, selection):
 
     return current_questions
 
-    """
-    @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
-    """
+
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
     setup_db(app)
-    CORS(app)
+    """
+    @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+    """
+    CORS(app, resources={r'/*': {'origins': '*'}})
 
     """
     @TODO: Use the after_request decorator to set Access-Control-Allow
@@ -37,7 +38,7 @@ def create_app(test_config=None):
             "Access-Control-Allow-Headers", "Content-Type,Authorization,true"
         )
         response.headers.add(
-            "Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS"
+            "Access-Control-Allow-Methods", "GET,PATCH,POST,DELETE,OPTIONS"
         )
         return response
 
@@ -61,13 +62,11 @@ def create_app(test_config=None):
         for cat in category:
             categories[cat.id] = cat.type
 
-        result = {
+        return jsonify ({
                 "successs": True,
                 "categories": categories
 
-        }
-
-        return result
+        })
 
     """
     @TODO:
@@ -94,14 +93,14 @@ def create_app(test_config=None):
         for cat in category:
             categories[cat.id] = cat.type
 
-        result = {
+        return jsonify (
+            {
                 "success": True,
                 "questions": current_questions,
                 "total_questions": len(selection),
                 "categories": categories,
                 "current_category": None
-        }
-        return result  
+        }) 
        
     """
     @TODO:
@@ -125,7 +124,7 @@ def create_app(test_config=None):
             return jsonify(
                 {
                     "success": True,
-                    #"deleted": question_id,
+                    "deleted": question_id,
                 }
             )
 
@@ -141,6 +140,39 @@ def create_app(test_config=None):
     the form will clear and the question will appear at the end of the last page
     of the questions list in the "List" tab.
     """
+    @app.route("/questions", methods=["POST"])
+    def create_question():
+        body = request.get_json()
+
+        # to check if the body has all the fields 
+        if not ('question' in body and 'answer' in body and
+                'difficulty' in body and 'category' in body):
+            abort(422)
+
+
+        new_question = body.get('question')
+        new_answer = body.get('answer')
+        new_difficulty = body.get('difficulty')
+        new_category = body.get('category')
+        
+        # to check if all fields are provided by user
+        if ((new_question is None or new_question == "") or (new_answer is None or new_answer == "") or
+                (new_difficulty is None or new_difficulty == "") or (new_category is None or new_category == "")):
+            abort(422)
+
+        try:
+            create_quest = Question(question=new_question, answer=new_answer, 
+                                       difficulty=new_difficulty,category=new_category)
+            create_quest.insert()
+
+            return jsonify(
+                {
+                    "success": True,
+                    "created": create_quest.id,
+                }
+            )
+        except:
+            abort(422)
 
     """
     @TODO:
@@ -152,7 +184,28 @@ def create_app(test_config=None):
     only question that include that string within their question.
     Try using the word "title" to start.
     """
+    @app.route("/questions/search", methods=["POST"])
+    def search_questions():
+        body = request.get_json()
 
+        search = body.get("searchTerm", None)
+
+        try:
+            if search:
+                selection = Question.query.order_by(Question.id).filter(
+                    Question.question.ilike("%{}%".format(search))).all()
+                current_questions = paginate_questions(request, selection)
+
+                return jsonify(
+                    {
+                        "success": True,
+                        "questions": current_questions,
+                        "total_questions": len(selection),
+                        "current_category": None
+                    }
+                )
+        except:
+            abort(404)
     """
     @TODO:
     Create a GET endpoint to get questions based on category.
@@ -161,7 +214,22 @@ def create_app(test_config=None):
     categories in the left column will cause only questions of that
     category to be shown.
     """
+    @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+    def retrieve_questions_by_category(category_id):
+        selection = Question.query.order_by(Question.id).filter(Question.category==category_id).all()
+        current_questions = paginate_questions(request, selection)
 
+        if len(current_questions) == 0:
+            abort(404)
+
+        return jsonify (
+            {
+                "success": True,
+                "questions": current_questions,
+                "total_questions": len(selection),
+                "current_category": category_id
+        }) 
+    
     """
     @TODO:
     Create a POST endpoint to get questions to play the quiz.
