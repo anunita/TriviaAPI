@@ -1,5 +1,6 @@
 import os
 import unittest
+import json
 
 from flaskr import create_app
 from models import db, Question, Category
@@ -12,7 +13,7 @@ class TriviaTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.database_name = "trivia_test"
         self.database_user = "postgres"
-        self.database_password = "password"
+        self.database_password = "Divit%402017"
         self.database_host = "localhost:5432"
         self.database_path = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}/{self.database_name}"
 
@@ -30,14 +31,29 @@ class TriviaTestCase(unittest.TestCase):
 
     def tearDown(self):
         """Executed after each test"""
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
-
+    #    with self.app.app_context():
+    #        db.session.remove()
+    #        db.drop_all()
+        pass
     """
     TODO
     Write at least one test for each test for successful operation and for expected errors.
     """
+    def test_get_categories(self):
+        res = self.client.get("/categories")
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data["success"], True)
+        self.assertTrue(len(data["categories"]))
+
+    def test_404_sent_requesting_categories(self):
+        res = self.client.get("/categories/1000")
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data["success"], False)
+        self.assertEqual(data["message"], "resource not found")
 
 
 # Make the tests conveniently executable

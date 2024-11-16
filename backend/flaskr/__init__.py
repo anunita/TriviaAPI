@@ -63,7 +63,7 @@ def create_app(test_config=None):
             categories[cat.id] = cat.type
 
         return jsonify ({
-                "successs": True,
+                "success": True,
                 "categories": categories
 
         })
