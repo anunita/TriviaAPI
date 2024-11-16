@@ -241,6 +241,36 @@ def create_app(test_config=None):
     one question at a time is displayed, the user is allowed to answer
     and shown whether they were correct or not.
     """
+    @app.route('/quizzes', methods=['POST'])
+    def get_random_question_for_quiz():
+
+        body = request.get_json()
+        if not ('quiz_category' in body and 'previous_questions' in body):
+            abort(422)
+
+        quiz_category = body.get('quiz_category')
+        previous_questions = body.get('previous_questions')
+
+        if ((quiz_category is None) or (previous_questions is None)):
+            abort(400)
+
+        category_id = quiz_category['id']
+
+        if category_id == 0:
+            quiz_questions = Question.query.filter(Question.id.notin_((previous_questions))).all()
+        else:   
+            quiz_questions = Question.query.filter(Question.category==category_id).filter(
+                Question.id.notin_((previous_questions))).all()        
+        
+        if len(quiz_questions) > 0:
+            new_question = random.choice(quiz_questions).format()
+        else:
+            new_question = None
+
+        return jsonify({
+            'success': True,
+            'question': new_question
+        })
 
     """
     @TODO:
@@ -266,13 +296,6 @@ def create_app(test_config=None):
         return (
             jsonify({"success": False, "error": 400, "message": "bad request"}), 
             400,
-        )
-
-    @app.errorhandler(405)
-    def not_found(error):
-        return (
-            jsonify({"success": False, "error": 405, "message": "method not allowed"}),
-            405,
         )
     return app
 
