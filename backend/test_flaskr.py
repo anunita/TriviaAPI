@@ -13,9 +13,8 @@ class TriviaTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.database_name = "trivia_test"
         self.database_user = "postgres"
-        self.database_password = "Divit%402017"
         self.database_host = "localhost:5432"
-        self.database_path = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}/{self.database_name}"
+        self.database_path = f"postgresql://{self.database_user}@{self.database_host}/{self.database_name}"
 
         # Create app with the test configuration
         self.app = create_app({
@@ -36,6 +35,7 @@ class TriviaTestCase(unittest.TestCase):
     TODO
     Write at least one test for each test for successful operation and for expected errors.
     """
+    # test cases for getting valid and invalid categories
     def test_get_categories(self):
         res = self.client.get("/categories")
         data = json.loads(res.data)
@@ -52,6 +52,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "resource not found")
 
+    # test cases for getting questions for valid and invalid number of pages 
     def test_get_paginated_questions(self):
         res = self.client.get("/questions")
         data = json.loads(res.data)
@@ -63,13 +64,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data["categories"]))
 
     def test_404_sent_requesting_questions_beyond_valid_page(self):
-        res = self.client.get("/questions?page=10000", json={"rating": 1})
+        res = self.client.get("/questions?page=10000")
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "resource not found")
 
+    # test cases for deleting valid and invalid question id
     def test_delete_question(self):
         with self.app.app_context():
             sample_question = Question(question="what is the sample question?", answer="this",
@@ -95,6 +97,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "unprocessable")
     
+    # test cases for creating valid and invalid questions
     def test_create_new_question(self):
         sample_question = {"question": "what is the sample question?", 
                            "answer": "this",
@@ -117,7 +120,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "unprocessable")
-
+    
+    # test cases for searching valid and invalid keywords in questions
     def test_get_question_search_with_results(self):
         res = self.client.post("/questions/search", json={"searchTerm": "is"})
         data = json.loads(res.data)
@@ -135,6 +139,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "resource not found")
 
+    # test cases for getting valid and invalid questions by categories
     def test_get_questions_by_category(self):
         res = self.client.get('/categories/1/questions')
         data = json.loads(res.data)
@@ -153,6 +158,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "resource not found")
 
+    # test cases for playing quiz with valid and invalid inputs sent
     def test_play_quiz(self):
         quiz = {'previous_questions': [],
                           'quiz_category': {'type': 'click', 'id': 0}}
