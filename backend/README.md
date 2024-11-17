@@ -70,7 +70,7 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 ### API Documentation
 
 ****
-GET "\categories"
+GET "\categories"  
 curl -X GET 'http://127.0.0.1:5000/categories'
 
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
