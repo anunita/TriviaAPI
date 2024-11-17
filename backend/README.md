@@ -92,8 +92,8 @@ categories: A dictionary containing Category ID and Category Type as a key value
 }
 
 ****
-GET "\questions?page=<page_number>"
-curl -X GET 'http://127.0.0.1:5000/questions'
+GET "\questions?page=<page_number>"  
+curl -X GET 'http://127.0.0.1:5000/questions'  
 curl -X GET 'http://127.0.0.1:5000/questions?page=2'
 
 - Fetches a paginated dictionary of questions of all available categories. A page contains 10 questions.
@@ -192,7 +192,7 @@ total_questions: Total Number of questions
 }
 
 ****
-DELETE "/questions/<question_id>"
+DELETE "/questions/<question_id>"  
 curl -X DELETE 'http://127.0.0.1:5000/questions/2'
 
 - Delete an existing questions from the available questions based on the question ID
@@ -206,7 +206,7 @@ deleted: Question ID that is deleted
 }
 
 ****
-POST /questions 
+POST /questions   
 curl -X POST -H "Content-Type: application/json" -d '{"question":"What is the capital city of India?", "answer":"New Delhi", "difficulty":2, "category":3}' 'http://127.0.0.1:5000/questions'
 
 
@@ -222,7 +222,7 @@ created: Question ID that is created
 }
 
 ****
-POST "/questions/search"
+POST "/questions/search"  
 curl -X POST -H "Content-Type: application/json" -d '{"searchTerm":"Taj"}' 'http://127.0.0.1:5000/questions/search'
 
 - Fetches all questions based on the search string provided (not case-sensitive)
@@ -249,7 +249,7 @@ total_questions: Total Number of questions having the search string
 }
 
 ****
-GET "/categories/<int:category_id>/questions" 
+GET "/categories/<int:category_id>/questions"   
 curl -X GET 'http://127.0.0.1:5000/categories/2/questions'
 
 - Fetches a dictionary of questions for the given category ID
@@ -282,9 +282,9 @@ total_questions: Total Number of questions under the given category
 }
 
 ****
-POST "/quizzes"
+POST "/quizzes"  
 For a particular category : 
-curl -X POST -H "Content-Type: application/json" -d '{"previous_questions": [], "quiz_category": {"type": "Sports", "id": "6"}}' 'http://127.0.0.1:5000/quizzes' 
+curl -X POST -H "Content-Type: application/json" -d '{"previous_questions": [], "quiz_category": {"type": "Sports", "id": "6"}}' 'http://127.0.0.1:5000/quizzes'   
 For All categories:
 curl -X POST -H "Content-Type: application/json" -d '{"previous_questions": [], "quiz_category": {"type": "click", "id": 0}}' 'http://127.0.0.1:5000/quizzes'
 
