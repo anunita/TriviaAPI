@@ -79,6 +79,7 @@ curl -X GET 'http://127.0.0.1:5000/categories'
 
 categories: A dictionary containing Category ID and Category Type as a key value pair
 
+```json
 {
   "categories": {
     "1": "Science",
@@ -90,6 +91,7 @@ categories: A dictionary containing Category ID and Category Type as a key value
   },
   "success": true
 }
+```
 
 ****
 GET "\questions?page=<page_number>"  
@@ -105,6 +107,7 @@ current_category: Null
 questions: List of questions
 total_questions: Total Number of questions
 
+```json
 {
   "categories": {
     "1": "Science",
@@ -190,6 +193,7 @@ total_questions: Total Number of questions
   "success": true,
   "total_questions": 46
 }
+```
 
 ****
 DELETE "/questions/<question_id>"  
@@ -200,13 +204,16 @@ curl -X DELETE 'http://127.0.0.1:5000/questions/2'
 - Response Body:
 
 deleted: Question ID that is deleted
+
+```json
 {
   "deleted": "49",
   "success": true
 }
+```
 
 ****
-POST /questions   
+POST "/questions"  
 curl -X POST -H "Content-Type: application/json" -d '{"question":"What is the capital city of India?", "answer":"New Delhi", "difficulty":2, "category":3}' 'http://127.0.0.1:5000/questions'
 
 
@@ -216,10 +223,13 @@ curl -X POST -H "Content-Type: application/json" -d '{"question":"What is the ca
 - Response Body: 
 
 created: Question ID that is created
+
+```json
 {
   "created": 91, 
   "success": true
 }
+```
 
 ****
 POST "/questions/search"  
@@ -233,6 +243,8 @@ curl -X POST -H "Content-Type: application/json" -d '{"searchTerm":"Taj"}' 'http
 current_category: Null 
 questions: List of questions having the search string (not case sensitive)
 total_questions: Total Number of questions having the search string
+
+```json
 {
   "current_category": null,
   "questions": [
@@ -247,6 +259,7 @@ total_questions: Total Number of questions having the search string
   "success": true,
   "total_questions": 1
 }
+```
 
 ****
 GET "/categories/<int:category_id>/questions"   
@@ -259,6 +272,8 @@ curl -X GET 'http://127.0.0.1:5000/categories/2/questions'
 current_category: Current category ID 
 questions: List of questions under the given category
 total_questions: Total Number of questions under the given category
+
+```json
 {
   "current_category": 2,
   "questions": [
@@ -280,6 +295,7 @@ total_questions: Total Number of questions under the given category
   "success": true,
   "total_questions": 2
 }
+```
 
 ****
 POST "/quizzes"  
@@ -294,6 +310,8 @@ curl -X POST -H "Content-Type: application/json" -d '{"previous_questions": [], 
 - Response Body:
 
 question: Random questions under the given or any category based on the option chosen
+
+```json
 {
   "question": {
     "answer": "The Liver", 
@@ -304,6 +322,8 @@ question: Random questions under the given or any category based on the option c
   }, 
   "success": true
 }
+```
+
 ## Testing
 
 To deploy the tests, run
