@@ -69,7 +69,7 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 
 ### API Documentation
 
-****
+*****
 GET "\categories" 
 curl -X GET 'http://127.0.0.1:5000/categories'
 
