@@ -69,8 +69,8 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 
 ### API Documentation
 
-*****
-GET "\categories" 
+****
+GET "\categories"
 curl -X GET 'http://127.0.0.1:5000/categories'
 
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
@@ -94,8 +94,8 @@ categories: A dictionary containing Category ID and Category Type as a key value
 ```
 
 ****
-GET "\questions?page=<page_number>" 
-curl -X GET 'http://127.0.0.1:5000/questions' 
+GET "\questions?page=<page_number>"
+curl -X GET 'http://127.0.0.1:5000/questions'
 curl -X GET 'http://127.0.0.1:5000/questions?page=2'
 
 - Fetches a paginated dictionary of questions of all available categories. A page contains 10 questions.
@@ -196,7 +196,7 @@ total_questions: Total Number of questions
 ```
 
 ****
-DELETE "/questions/<question_id>" 
+DELETE "/questions/<question_id>"
 curl -X DELETE 'http://127.0.0.1:5000/questions/2'
 
 - Delete an existing questions from the available questions based on the question ID
@@ -262,7 +262,7 @@ total_questions: Total Number of questions having the search string
 ```
 
 ****
-GET "/categories/<int:category_id>/questions"  
+GET "/categories/<int:category_id>/questions" 
 curl -X GET 'http://127.0.0.1:5000/categories/2/questions'
 
 - Fetches a dictionary of questions for the given category ID
@@ -298,7 +298,7 @@ total_questions: Total Number of questions under the given category
 ```
 
 ****
-POST "/quizzes" 
+POST "/quizzes"
 For a particular category : 
 curl -X POST -H "Content-Type: application/json" -d '{"previous_questions": [], "quiz_category": {"type": "Sports", "id": "6"}}' 'http://127.0.0.1:5000/quizzes'   
 For All categories:
