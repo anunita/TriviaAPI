@@ -7,6 +7,7 @@ from models import setup_db, Question, Category, db
 
 QUESTIONS_PER_PAGE = 10
 
+
 def paginate_questions(request, selection):
     page = request.args.get("page", 1, type=int)
     
@@ -16,14 +17,13 @@ def paginate_questions(request, selection):
 
     return current_questions
 
-
-
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
     setup_db(app)
     """
-    @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+    @TODO: Set up CORS. Allow '*' for origins.
+    Delete the sample route after completing the TODOs
     """
     CORS(app, resources={r'/*': {'origins': '*'}})
 
@@ -45,7 +45,6 @@ def create_app(test_config=None):
     with app.app_context():
         db.create_all()
 
-
     """
     @TODO:
     Create an endpoint to handle GET requests
@@ -53,7 +52,7 @@ def create_app(test_config=None):
     """
     @app.route("/categories", methods=["GET"])
     def retrieve_categories():
-        try: 
+        try:
             category = Category.query.order_by(Category.type).all()
 
             if len(category) == 0:
@@ -63,10 +62,9 @@ def create_app(test_config=None):
             for cat in category:
                 categories[cat.id] = cat.type
 
-            return jsonify ({
+            return jsonify({
                     "success": True,
                     "categories": categories
-
             })
         except Exception as e:
             print(f"Error retrieving categories: {e}")
@@ -78,10 +76,11 @@ def create_app(test_config=None):
     including pagination (every 10 questions).
     This endpoint should return a list of questions,
     number of total questions, current category, categories.
-    
+
     TEST: At this point, when you start the application
     you should see questions and categories generated,
-    ten questions per page and pagination at the bottom of the screen for three pages.
+    ten questions per page and pagination at the bottom of
+    the screen for three pages.
     Clicking on the page numbers should update the questions.
     """
     @app.route("/questions", methods=["GET"])
@@ -97,29 +96,30 @@ def create_app(test_config=None):
             for cat in category:
                 categories[cat.id] = cat.type
 
-            return jsonify (
-                {
+            return jsonify({
                     "success": True,
                     "questions": current_questions,
                     "total_questions": selection.count(),
                     "categories": categories,
                     "current_category": None
-            }) 
+            })
         except Exception as e:
             print(f"Error retrieving questions: {e}")
             abort(404)
-       
+
     """
     @TODO:
     Create an endpoint to DELETE question using a question ID.
 
-    TEST: When you click the trash icon next to a question, the question will be removed.
+    TEST: When you click the trash icon next to a question,
+    the question will be removed.
     This removal will persist in the database and when you refresh the page.
     """
     @app.route("/questions/<question_id>", methods=["DELETE"])
     def delete_question(question_id):
         try:
-            question = Question.query.filter(Question.id == question_id).one_or_none()
+            question = Question.query.filter(
+                Question.id == question_id).one_or_none()
 
             if question is None:
                 abort(404)
@@ -128,12 +128,10 @@ def create_app(test_config=None):
             selection = Question.query.order_by(Question.id)
             current_questions = paginate_questions(request, selection)
 
-            return jsonify(
-                {
+            return jsonify({
                     "success": True,
                     "deleted": question_id,
-                }
-            )
+            })
 
         except Exception as e:
             print(f"Error deleting questions: {e}")
@@ -145,40 +143,41 @@ def create_app(test_config=None):
     category, and difficulty score.
 
     TEST: When you submit a question on the "Add" tab,
-    the form will clear and the question will appear at the end of the last page
+    the form will clear and the question will appear
+    at the end of the last page
     of the questions list in the "List" tab.
     """
     @app.route("/questions", methods=["POST"])
     def create_question():
         body = request.get_json()
 
-        # to check if the body has all the fields 
+        # to check if the body has all the fields
         if not ('question' in body and 'answer' in body and
                 'difficulty' in body and 'category' in body):
             abort(422)
-
 
         new_question = body.get('question')
         new_answer = body.get('answer')
         new_difficulty = body.get('difficulty')
         new_category = body.get('category')
-        
+
         # to check if all fields are provided by user
-        if ((new_question is None or new_question == "") or (new_answer is None or new_answer == "") or
-                (new_difficulty is None or new_difficulty == "") or (new_category is None or new_category == "")):
+        if ((new_question is None or new_question == "") or
+            (new_answer is None or new_answer == "") or
+            (new_difficulty is None or new_difficulty == "") or
+            (new_category is None or new_category == "")):
             abort(422)
 
         try:
-            create_quest = Question(question=new_question, answer=new_answer, 
-                                       difficulty=new_difficulty,category=new_category)
+            create_quest = Question(
+                question=new_question, answer=new_answer,
+                difficulty=new_difficulty, category=new_category)
             create_quest.insert()
 
-            return jsonify(
-                {
+            return jsonify({
                     "success": True,
                     "created": create_quest.id,
-                }
-            ), 201
+            }), 201
         except Exception as e:
             print(f"Error creating questions: {e}")
             abort(422)
@@ -205,14 +204,12 @@ def create_app(test_config=None):
                     Question.question.ilike("%{}%".format(search)))
                 current_questions = paginate_questions(request, selection)
 
-                return jsonify(
-                    {
+                return jsonify({
                         "success": True,
                         "questions": current_questions,
                         "total_questions": selection.count(),
                         "current_category": None
-                    }
-                )
+                })
             abort(404)
         except Exception as e:
             print(f"Error searching questions: {e}")
@@ -227,23 +224,23 @@ def create_app(test_config=None):
     """
     @app.route('/categories/<int:category_id>/questions', methods=['GET'])
     def retrieve_questions_by_category(category_id):
-        selection = Question.query.order_by(Question.id).filter(Question.category==category_id)
+        selection = Question.query.order_by(
+            Question.id).filter(Question.category == category_id)
         current_questions = paginate_questions(request, selection)
-        
+
         try:
             if len(current_questions) == 0:
                 abort(404)
 
-            return jsonify (
-                {
+            return jsonify({
                     "success": True,
                     "questions": current_questions,
                     "total_questions": selection.count(),
                     "current_category": category_id
-            }) 
+            })
         except Exception as e:
             print(f"Error retrieving questions by category: {e}")
-            abort(500)    
+            abort(500)
     """
     @TODO:
     Create a POST endpoint to get questions to play the quiz.
@@ -272,11 +269,13 @@ def create_app(test_config=None):
             category_id = quiz_category['id']
 
             if category_id == 0:
-                quiz_questions = Question.query.filter(Question.id.notin_((previous_questions))).all()
-            else:   
-                quiz_questions = Question.query.filter(Question.category==category_id).filter(
-                    Question.id.notin_((previous_questions))).all()        
-            
+                quiz_questions = Question.query.filter(
+                    Question.id.notin_((previous_questions))).all()
+            else:
+                quiz_questions = Question.query.filter(
+                    Question.category == category_id).filter(
+                    Question.id.notin_((previous_questions))).all()
+
             if len(quiz_questions) > 0:
                 new_question = random.choice(quiz_questions).format()
             else:
@@ -288,7 +287,7 @@ def create_app(test_config=None):
             })
         except Exception as e:
             print(f"Error playing quiz: {e}")
-            abort(500)              
+            abort(500)
 
     """
     @TODO:
@@ -298,29 +297,32 @@ def create_app(test_config=None):
     @app.errorhandler(404)
     def not_found(error):
         return (
-            jsonify({"success": False, "error": 404, "message": "resource not found"}),
+            jsonify({"success": False, "error": 404,
+                     "message": "resource not found"}),
             404,
         )
 
     @app.errorhandler(422)
     def unprocessable(error):
         return (
-            jsonify({"success": False, "error": 422, "message": "unprocessable"}),
+            jsonify({"success": False, "error": 422,
+                     "message": "unprocessable"}),
             422,
         )
 
     @app.errorhandler(400)
     def bad_request(error):
         return (
-            jsonify({"success": False, "error": 400, "message": "bad request"}), 
+            jsonify({"success": False, "error": 400,
+                     "message": "bad request"}),
             400,
         )
-    
+
     @app.errorhandler(500)
     def internal_server(error):
         return (
-            jsonify({"success": False, "error": 500, "message": "internal server error"}), 
+            jsonify({"success": False, "error": 500,
+                     "message": "internal server error"}), 
             500,
-        )    
+        )
     return app
-
