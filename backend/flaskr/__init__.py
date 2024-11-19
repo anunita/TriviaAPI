@@ -10,9 +10,7 @@ QUESTIONS_PER_PAGE = 10
 
 def paginate_questions(request, selection):
     page = request.args.get("page", 1, type=int)
-    
     paginated = selection.paginate(page=page, per_page=QUESTIONS_PER_PAGE, error_out=False)
-
     current_questions = [question.format() for question in paginated.items]
 
     return current_questions
@@ -132,10 +130,10 @@ def create_app(test_config=None):
                     "success": True,
                     "deleted": question_id,
             })
-
         except Exception as e:
             print(f"Error deleting questions: {e}")
             abort(422)
+
     """
     @TODO:
     Create an endpoint to POST a new question,
@@ -214,6 +212,7 @@ def create_app(test_config=None):
         except Exception as e:
             print(f"Error searching questions: {e}")
             abort(500)
+
     """
     @TODO:
     Create a GET endpoint to get questions based on category.
@@ -241,6 +240,7 @@ def create_app(test_config=None):
         except Exception as e:
             print(f"Error retrieving questions by category: {e}")
             abort(500)
+
     """
     @TODO:
     Create a POST endpoint to get questions to play the quiz.
