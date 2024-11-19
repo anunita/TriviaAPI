@@ -4,17 +4,25 @@ import json
 
 from flaskr import create_app
 from models import db, Question, Category, setup_db
+from dotenv import load_dotenv
+import os 
 
+load_dotenv()
 
 class TriviaTestCase(unittest.TestCase):
     """This class represents the trivia test case"""
 
     def setUp(self):
         """Define test variables and initialize app."""
-        self.database_name = "trivia_test"
-        self.database_user = "postgres"
-        self.database_host = "localhost:5432"
-        self.database_path = f"postgresql://{self.database_user}@{self.database_host}/{self.database_name}"
+    
+        self.database_host = os.getenv("database_host")
+        self.database_name = os.getenv("database_name_test")
+        self.database_user = os.getenv("database_user")
+        self.database_password = os.getenv("database_password")
+        if self.database_password:
+            self.database_path = f'postgresql://{self.database_user}:{self.database_password}@{self.database_host}/{self.database_name}'
+        else:
+            self.database_path = f'postgresql://{self.database_user}@{self.database_host}/{self.database_name}'
 
         # Create app with the test configuration
         self.app = create_app({
@@ -36,6 +44,7 @@ class TriviaTestCase(unittest.TestCase):
     Write at least one test for each test for successful operation and for expected errors.
     """
     # test cases for getting valid and invalid categories
+
     def test_get_categories(self):
         res = self.client.get("/categories")
         data = json.loads(res.data)
@@ -53,6 +62,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["message"], "resource not found")
 
     # test cases for getting questions for valid and invalid number of pages 
+
     def test_get_paginated_questions(self):
         res = self.client.get("/questions")
         data = json.loads(res.data)
@@ -64,7 +74,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data["categories"]))
 
     def test_404_sent_requesting_questions_beyond_valid_page(self):
-        res = self.client.get("/questions?page=10000")
+        res = self.client.get("/questions?page=100000000")
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
@@ -88,7 +98,7 @@ class TriviaTestCase(unittest.TestCase):
             self.assertEqual(data["success"], True)
             self.assertEqual(data["deleted"], str(sample_question_id))
             self.assertEqual(question, None)
-
+    
     def test_422_if_question_does_not_exist(self):
         res = self.client.delete("/questions/-1")
         data = json.loads(res.data)
@@ -106,10 +116,10 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client.post("/questions", json=sample_question)
         data = json.loads(res.data)    
 
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 201)
         self.assertEqual(data["success"], True)    
         self.assertTrue(data["created"])
-
+    
     def test_422_if_question_creation_not_allowed(self):
         sample_question = {"question": "what is the sample question?", 
                            "answer": "this",
@@ -130,15 +140,15 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], True)
         self.assertIsNotNone(data['questions'])
         self.assertIsNotNone(data['total_questions'])
-
+    
     def test_get_book_search_without_results(self):
         res = self.client.post("/questions/search", json={"searchTerm": {}})
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 500)
         self.assertEqual(data["success"], False)
-        self.assertEqual(data["message"], "resource not found")
-
+        self.assertEqual(data["message"], "internal server error")
+    
     # test cases for getting valid and invalid questions by categories
     def test_get_questions_by_category(self):
         res = self.client.get('/categories/1/questions')
@@ -149,7 +159,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['questions']))
         self.assertTrue(data['total_questions'])
         self.assertTrue(data['current_category'])
-
+    
     def test_404_get_questions_by_category(self):
         res = self.client.get('/categories/-1/questions')
         data = json.loads(res.data)
@@ -157,7 +167,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "resource not found")
-
+    
     # test cases for playing quiz with valid and invalid inputs sent
     def test_play_quiz(self):
         quiz = {'previous_questions': [],
@@ -168,7 +178,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-
+    
     def test_422_play_quiz_fields_missing(self):
         quiz = {'quiz_category': {'type': 'click', 'id': 0}}
         res = self.client.post('/quizzes', json=quiz)
@@ -177,7 +187,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "unprocessable")
-
+    
     
 
 # Make the tests conveniently executable

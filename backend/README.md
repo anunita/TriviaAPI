@@ -323,6 +323,46 @@ question: Random questions under the given or any category based on the option c
   "success": true
 }
 ```
+### Error Codes
+
+Errors are returned as JSON objects in the following format:
+
+1) Resource not found
+
+```json
+{
+    "success": False, 
+    "error": 404,
+    "message": "resource not found"
+}
+```
+2) Bad request
+
+```json
+{
+    "success": False, 
+    "error": 400,
+    "message": "bad request"
+}
+```
+3) Unprocessble Request
+
+```json
+{
+    "success": False, 
+    "error": 422,
+    "message": "unprocessable"
+}
+```
+4) Internal Server Error
+
+```json
+{
+    "success": False, 
+    "error": 500,
+    "message": "internal server error"
+}
+```
 
 ## Testing
 
