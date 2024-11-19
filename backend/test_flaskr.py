@@ -3,7 +3,7 @@ import unittest
 import json
 
 from flaskr import create_app
-from models import db, Question, Category, setup_db
+from models import setup_db, Question, Category, db
 from dotenv import load_dotenv
 import os
 
